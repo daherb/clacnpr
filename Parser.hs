@@ -11,6 +11,7 @@ data Oper = Plus
           | Times
           | Div
           | Pop
+          | Swap
           deriving (Eq,Show)
 
 parseLit :: Parsec String () Expr
@@ -29,7 +30,8 @@ ops = [("+",Plus,(+)),
        ("-",Minus,(-)),
        ("*",Times,(*)),
        ("/",Div,(/)),
-       (".",Pop,\_ -> id)]
+       (".",Pop,\_ -> id),
+       ("swp",Swap,\_ -> id)]
 parseOp :: Parsec String () Expr
 parseOp = do
   choice [do { string s ; return $ Op o } | (s,o,_) <- ops]
@@ -53,6 +55,7 @@ evalExprs (Op Pop:es) (s:ss) =
   let (a,b) = evalExprs es ss
   in
     (a ++ "\n" ++ show s, b)
+evalExprs (Op Swap:es) (a:b:ss) = evalExprs es (b:a:ss)
 evalExprs (Op o:es) (a:b:s) = let f = lookupFun o ops in evalExprs es ((f b a):s)
 evalExprs _ s = ("Stack empty",s)
 
