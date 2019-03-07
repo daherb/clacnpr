@@ -57,8 +57,8 @@ evalExprs (Op Pop:es) (s:ss) =
     (a ++ "\n" ++ show s, b)
 evalExprs (Op Swap:es) (a:b:ss) = evalExprs es (b:a:ss)
 evalExprs (Op o:es) (a:b:s) = let f = lookupFun o ops in evalExprs es ((f b a):s)
-evalExprs _ s = ("Stack empty",s)
-
+evalExprs _ [] = ("Stack empty",[])
+evalExprs _ s@[_] = ("Too few operands",s)
 lookupFun :: Oper -> [(String,Oper,Float -> Float -> Float)] -> (Float -> Float -> Float)
 lookupFun _ [] = undefined 
 lookupFun o' ((_,o,f):os)
