@@ -13,12 +13,13 @@ repl =
         l <- lift $ getInputLine ">>> "
         case l of
           Nothing -> lift $ return ()
-          Just l -> case parse l of
-            Left e -> lift $ outputStrLn $ "Error: " ++ show e
-            Right es -> do
-              stack <- get
-              let (str,stack') = evalExprs es stack
-              lift $ outputStrLn $ str ++ "\n" ++ if (not . null) stack' then (show . head) stack'
-              else ""
-              put stack'
-        loop
+          Just l -> do
+            case parse l of
+              Left e -> lift $ outputStrLn $ "Error: " ++ show e
+              Right es -> do
+                stack <- get
+                let (str,stack') = evalExprs es stack
+                lift $ outputStrLn $ str ++ "\n" ++ if (not . null) stack' then (show . head) stack'
+                else ""
+                put stack'
+            loop
