@@ -12,6 +12,8 @@ data Oper = Plus
           | Div
           | Pop
           | Swap
+          | Dup
+          | Help
           deriving (Eq,Show)
 
 parseLit :: Parsec String () Expr
@@ -25,16 +27,19 @@ parseLit = do
                         )
   return $ Lit $ read ((sig : pre) ++ post)
 
-ops :: [(String,Oper,(Float -> Float -> Float))]
-ops = [("+",Plus,(+)),
-       ("-",Minus,(-)),
-       ("*",Times,(*)),
-       ("/",Div,(/)),
-       (".",Pop,\_ -> id),
-       ("swp",Swap,\_ -> id)]
+ops :: [(String,Oper,(Float -> Float -> Float),String)]
+ops = [("+",Plus,(+), "Adds the two values on top of the stack and puts the result on top"),
+       ("-",Minus,(-), "Substracts the two values on top of the stack and puts the result on top"),
+       ("*",Times,(*), "Multiplies the two values on top of the stack and puts the result on top"),
+       ("/",Div,(/), "Divides the two values on top of the stack and puts the result on top"),
+       (".",Pop,\_ -> id, "Pops and prints the top value of the stack"),
+       ("swp",Swap,\_ -> id, "Swaps the two topmost elements of the stack"),
+       ("dup",Dup,\_ -> id, "Duplicates the topmost elements of the stack"),
+       ("help",Help,\_ -> id, "Prints this help message")]
+      
 parseOp :: Parsec String () Expr
 parseOp = do
-  choice [do { string s ; return $ Op o } | (s,o,_) <- ops]
+  choice [do { string s ; return $ Op o } | (s,o,_,_) <- ops]
 
 parse :: String -> Either ParseError [Expr]
 parse s =
@@ -54,13 +59,22 @@ evalExprs (Lit l:es) s = evalExprs es (l:s)
 evalExprs (Op Pop:es) (s:ss) =
   let (a,b) = evalExprs es ss
   in
-    (a ++ "\n" ++ show s, b)
+    (show s ++ "\n" ++ a, b)
 evalExprs (Op Swap:es) (a:b:ss) = evalExprs es (b:a:ss)
+evalExprs (Op Dup:es) (a:ss) = evalExprs es (a:a:ss)
+evalExprs (Op Help:es) ss =
+  let (a,b) = evalExprs es ss
+  in
+    ("\n" ++ printHelp ++ "\n" ++ a, b)
+  where
+    printHelp =
+      unlines ["\t" ++ s ++ "\t" ++ d | (s,_,_,d) <- ops ]
 evalExprs (Op o:es) (a:b:s) = let f = lookupFun o ops in evalExprs es ((f b a):s)
 evalExprs _ [] = ("Stack empty",[])
 evalExprs _ s@[_] = ("Too few operands",s)
-lookupFun :: Oper -> [(String,Oper,Float -> Float -> Float)] -> (Float -> Float -> Float)
+
+lookupFun :: Oper -> [(String,Oper,Float -> Float -> Float,String)] -> (Float -> Float -> Float)
 lookupFun _ [] = undefined 
-lookupFun o' ((_,o,f):os)
+lookupFun o' ((_,o,f,_):os)
   | o == o' = f
   | otherwise = lookupFun o' os
