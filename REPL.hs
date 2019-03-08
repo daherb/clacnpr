@@ -19,7 +19,7 @@ repl =
               Right es -> do
                 stack <- get
                 let (str,stack') = evalExprs es stack
-                lift $ outputStrLn $ str ++ "\n" ++ if (not . null) stack' then (show . head) stack'
+                lift $ outputStrLn $ "Out: " ++ str ++ "\nHead: " ++ if (not . null) stack' then (show . head) stack'
                 else ""
                 put stack'
             loop
