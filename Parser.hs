@@ -10,6 +10,7 @@ data Oper = Plus
           | Minus
           | Times
           | Div
+          | Sqrt
           | Pop
           | Swap
           | Dup
@@ -41,6 +42,7 @@ ops = [("+",Plus,(+), "Adds the two values on top of the stack and puts the resu
        ("-",Minus,(-), "Substracts the two values on top of the stack and puts the result on top"),
        ("*",Times,(*), "Multiplies the two values on top of the stack and puts the result on top"),
        ("/",Div,(/), "Divides the two values on top of the stack and puts the result on top"),
+       ("sqrt",Sqrt,nop,"Comutes the square root of the value on the top of the stack and puts the result on top"),
        (".",Pop,nop, "Pops and prints the top value of the stack"),
        ("swp",Swap,nop, "Swaps the two topmost elements of the stack"),
        ("dup",Dup,nop, "Duplicates the topmost elements of the stack"),
@@ -48,7 +50,7 @@ ops = [("+",Plus,(+), "Adds the two values on top of the stack and puts the resu
       
 parseOp :: Parsec String () Expr
 parseOp = do
-  choice [do { string s ; return $ Op o } | (s,o,_,_) <- ops]
+  choice [do { try (string s) ; return $ Op o } | (s,o,_,_) <- ops]
 
 parse :: String -> Either ParseError [Expr]
 parse s =
@@ -65,6 +67,8 @@ parse s =
 evalExprs :: [Expr] -> [Float] -> (String,[Float])
 evalExprs [] s = ("",s)
 evalExprs (Lit l:es) s = evalExprs es (l:s)
+evalExprs (Op Sqrt:es) (s:ss) =
+  evalExprs es (sqrt s:ss)
 evalExprs (Op Pop:es) (s:ss) =
   let (a,b) = evalExprs es ss
   in
