@@ -10,6 +10,7 @@ data Oper = Plus
           | Minus
           | Times
           | Div
+          | Exp
           | Sqrt
           | Pop
           | Swap
@@ -42,6 +43,7 @@ ops = [("+",Plus,(+), "Adds the two values on top of the stack and puts the resu
        ("-",Minus,(-), "Substracts the two values on top of the stack and puts the result on top"),
        ("*",Times,(*), "Multiplies the two values on top of the stack and puts the result on top"),
        ("/",Div,(/), "Divides the two values on top of the stack and puts the result on top"),
+       ("^",Exp,(**), "Computes the power of the two values on the top of the stack and puts the result on top"),
        ("sqrt",Sqrt,nop,"Comutes the square root of the value on the top of the stack and puts the result on top"),
        (".",Pop,nop, "Pops and prints the top value of the stack"),
        ("swp",Swap,nop, "Swaps the two topmost elements of the stack"),
