@@ -33,15 +33,18 @@ parseLit = do
                     )
   return $ Lit $ read ((sig : pre) ++ post ++ exp)
 
+nop :: Float -> Float -> Float
+nop = \_ -> id
+
 ops :: [(String,Oper,(Float -> Float -> Float),String)]
 ops = [("+",Plus,(+), "Adds the two values on top of the stack and puts the result on top"),
        ("-",Minus,(-), "Substracts the two values on top of the stack and puts the result on top"),
        ("*",Times,(*), "Multiplies the two values on top of the stack and puts the result on top"),
        ("/",Div,(/), "Divides the two values on top of the stack and puts the result on top"),
-       (".",Pop,\_ -> id, "Pops and prints the top value of the stack"),
-       ("swp",Swap,\_ -> id, "Swaps the two topmost elements of the stack"),
-       ("dup",Dup,\_ -> id, "Duplicates the topmost elements of the stack"),
-       ("help",Help,\_ -> id, "Prints this help message")]
+       (".",Pop,nop, "Pops and prints the top value of the stack"),
+       ("swp",Swap,nop, "Swaps the two topmost elements of the stack"),
+       ("dup",Dup,nop, "Duplicates the topmost elements of the stack"),
+       ("help",Help,nop, "Prints this help message")]
       
 parseOp :: Parsec String () Expr
 parseOp = do
