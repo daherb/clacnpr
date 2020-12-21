@@ -21,11 +21,17 @@ parseLit = do
   sig <- option '0' (char '-')
   pre <- many1 digit
   post <- option ".0" (do
-                            dot <- char '.'
-                            post <- many digit
-                            return (dot : post)
-                        )
-  return $ Lit $ read ((sig : pre) ++ post)
+                             dot <- char '.'
+                             post <- many digit
+                             return (dot : post)
+                         )
+  exp <- option "0" (do
+                        e <- char 'e'
+                        esig <- option '0' (char '-')
+                        edig <- many digit
+                        return (e:esig:edig)
+                    )
+  return $ Lit $ read ((sig : pre) ++ post ++ exp)
 
 ops :: [(String,Oper,(Float -> Float -> Float),String)]
 ops = [("+",Plus,(+), "Adds the two values on top of the stack and puts the result on top"),
@@ -45,7 +51,7 @@ parse :: String -> Either ParseError [Expr]
 parse s =
   P.parse (do
               es <- many (do
-                             e <- parseOp <|>  parseLit
+                             e <- try parseLit <|> parseOp
                              spaces
                              return e
                          )
