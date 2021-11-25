@@ -10,6 +10,8 @@ data Oper = Plus
           | Minus
           | Times
           | Div
+          | Mod
+          | IDiv
           | Exp
           | Sqrt
           | Pop
@@ -43,6 +45,8 @@ ops = [("+",Plus,(+), "Adds the two values on top of the stack and puts the resu
        ("-",Minus,(-), "Substracts the two values on top of the stack and puts the result on top"),
        ("*",Times,(*), "Multiplies the two values on top of the stack and puts the result on top"),
        ("/",Div,(/), "Divides the two values on top of the stack and puts the result on top"),
+       ("mod",Mod,\x y -> fromIntegral $ (round x) `mod` (round y), "Computes the modulo of the two values on top of the stack and puts the result on top. Rounds both parameters to integers"),
+       ("div",IDiv,\x y -> fromIntegral $ (round x) `div` (round y), "Computes the integer division of the two values on top of the stack and puts the result on top. Rounds both parameters to integers"),
        ("^",Exp,(**), "Computes the power of the two values on the top of the stack and puts the result on top"),
        ("sqrt",Sqrt,nop,"Comutes the square root of the value on the top of the stack and puts the result on top"),
        (".",Pop,nop, "Pops and prints the top value of the stack"),
