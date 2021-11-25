@@ -1,6 +1,8 @@
 module Parser (Parser.parse, evalExprs) where
 
 import Text.Parsec
+import Numeric
+
 import qualified Text.Parsec as P
 data Expr = Lit Float
           | Op Oper
@@ -15,6 +17,7 @@ data Oper = Plus
           | Exp
           | Sqrt
           | Pop
+          | Base
           | Swap
           | Dup
           | Help
@@ -50,6 +53,7 @@ ops = [("+",Plus,(+), "Adds the two values on top of the stack and puts the resu
        ("^",Exp,(**), "Computes the power of the two values on the top of the stack and puts the result on top"),
        ("sqrt",Sqrt,nop,"Comutes the square root of the value on the top of the stack and puts the result on top"),
        (".",Pop,nop, "Pops and prints the top value of the stack"),
+       ("base",Base,nop, "Pops the two values on top of the stack and prints the first one to the base given by the second one"),
        ("swp",Swap,nop, "Swaps the two topmost elements of the stack"),
        ("dup",Dup,nop, "Duplicates the topmost elements of the stack"),
        ("help",Help,nop, "Prints this help message")]
@@ -79,6 +83,10 @@ evalExprs (Op Pop:es) (s:ss) =
   let (a,b) = evalExprs es ss
   in
     (show s ++ "\n" ++ a, b)
+evalExprs (Op Base:es) (a:b:ss) =
+  let (x,y) = evalExprs es ss
+  in
+    (showIntAtBase (round a) ((['0'..'9'] ++ ['a'..'z']) !!) (round b) "\n" ++ x, y)
 evalExprs (Op Swap:es) (a:b:ss) = evalExprs es (b:a:ss)
 evalExprs (Op Dup:es) (a:ss) = evalExprs es (a:a:ss)
 evalExprs (Op Help:es) ss =
