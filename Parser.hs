@@ -16,6 +16,7 @@ data Oper = Plus
           | IDiv
           | Exp
           | Sqrt
+          | Pi
           | Pop
           | Base
           | Swap
@@ -52,6 +53,7 @@ ops = [("+",Plus,(+), "Adds the two values on top of the stack and puts the resu
        ("div",IDiv,\x y -> fromIntegral $ (round x) `div` (round y), "Computes the integer division of the two values on top of the stack and puts the result on top. Rounds both parameters to integers"),
        ("^",Exp,(**), "Computes the power of the two values on the top of the stack and puts the result on top"),
        ("sqrt",Sqrt,nop,"Comutes the square root of the value on the top of the stack and puts the result on top"),
+       ("pi",Pi,nop,"The constant pi"),
        (".",Pop,nop, "Pops and prints the top value of the stack"),
        ("base",Base,nop, "Pops the two values on top of the stack and prints the first one to the base given by the second one"),
        ("swp",Swap,nop, "Swaps the two topmost elements of the stack"),
@@ -79,6 +81,8 @@ evalExprs [] s = ("",s)
 evalExprs (Lit l:es) s = evalExprs es (l:s)
 evalExprs (Op Sqrt:es) (s:ss) =
   evalExprs es (sqrt s:ss)
+evalExprs (Op Pi:es) s =
+  evalExprs es (pi:s)
 evalExprs (Op Pop:es) (s:ss) =
   let (a,b) = evalExprs es ss
   in
