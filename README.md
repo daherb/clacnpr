@@ -8,3 +8,5 @@ Currently supports the following:
  * The constant pi
  * Stack operations . (pop), swp (swap), dup (duplicate), base (print number to given base)
  * On-line help
+
+Copyright (c) 2019-2021 Herbert Lange
